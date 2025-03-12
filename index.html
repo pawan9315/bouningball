@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario-Style Bouncing Ball</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #87CEEB; /* Sky color */
+            overflow: hidden;
+        }
+    
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let ball = {
+            x: 200,
+            y: 100,
+            radius: 20,
+            color: "red",
+            velocityY: 0,
+            gravity: 10,
+            restitution: 0.8,
+            isDragging: false
+        };
+
+        let ground = {
+            x: 0,
+            y: canvas.height - 50,
+            width: canvas.width,
+            height: 50,
+            color: "#8B4513"
+        };
+
+        let isMouseDown = false;
+
+        canvas.addEventListener("mousedown", (e) => {
+            let dx = e.clientX - ball.x;
+            let dy = e.clientY - ball.y;
+            if (Math.sqrt(dx * dx + dy * dy) < ball.radius) {
+                ball.isDragging = true;
+            }
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (ball.isDragging) {
+                ball.x = e.clientX;
+                ball.y = e.clientY;
+                ball.velocityY = 0;
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            ball.isDragging = false;
+        });
+
+        function update() {
+            if (!ball.isDragging) {
+                ball.velocityY += ball.gravity * 0.05;
+                ball.y += ball.velocityY;
+
+                if (ball.y + ball.radius >= ground.y) {
+                    ball.y = ground.y - ball.radius;
+                    ball.velocityY *= -ball.restitution;
+                }
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawGround();
+            requestAnimationFrame(update);
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawGround() {
+            ctx.fillStyle = ground.color;
+            ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+        }
+
+        update();
+    </script>
+</body>
+</html>
